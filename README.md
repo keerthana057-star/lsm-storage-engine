@@ -1,30 +1,158 @@
-LSM-Tree Based Key-Value Storage Engine
+LSM-Tree Key-Value Store
 
-A Log-Structured Merge Tree (LSM-Tree) is a storage-engine architecture designed to support high-throughput write workloads by buffering writes in memory and writing data sequentially to disk.
+A Java-based LSM-Tree Key-Value Store built to understand how storage engines handle write-heavy workloads efficiently.
 
-Why This Project?
+Project Goal
 
-Traditional storage systems can face performance bottlenecks when handling large volumes of random disk writes. LSM-Tree architecture addresses this by using an in-memory MemTable, a durable Write-Ahead Log (WAL), and immutable Sorted String Tables (SSTables).
+The goal of this project is to understand how a storage engine works internally by implementing the core components of an LSM-Tree based key-value store.
 
-What I Built
+The project focuses on:
 
-A mini LSM-Tree based key-value storage engine in Java that implements:
+* Write-Ahead Logging (WAL)
+* MemTable
+* SSTables
+* Efficient reads
+* Bloom Filters
+* SSTable Indexing
+* Compaction
+* Tombstones and Delete handling
+* WAL-based crash recovery
 
-Write-Ahead Logging (WAL) for durability and crash recovery
-MemTable for in-memory writes
-SSTables for persistent sorted storage
-Bloom Filters for efficient reads
-Compaction for managing and merging SSTables
-Read and Write workflows for key-value operations
+ Architecture
 
-System Flow
+```text
+                 Client
+                    │
+             PUT / GET / DELETE
+                    │
+             ┌──────▼──────┐
+             │   LSM-Tree  │
+             └──────┬──────┘
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+        WRITE                READ
+          │                   │
+         WAL              MemTable
+          │                   │
+      MemTable          SSTable Search
+          │                   │
+        Flush            Bloom Filter
+          │                   │
+       SSTable           SSTable Index
+          │                   │
+      Compaction          SSTables
+```
 
-Client → WAL → MemTable → SSTable → Disk
+Core Flow
 
-For reads:
+### Write
 
-Client → MemTable → SSTables → Bloom Filter → Result
+```text
+Client
+  ↓
+WAL
+  ↓
+MemTable
+  ↓
+MemTable Full?
+  ↓
+Flush
+  ↓
+SSTable
+```
 
-Goal
+### Read
 
-To understand and implement the core internals of a modern storage engine while exploring high-throughput writes, durability, crash recovery, efficient reads, and backend system design.
+```text
+Client
+  ↓
+MemTable
+  ↓
+SSTables
+  ↓
+Bloom Filter
+  ↓
+SSTable Index
+  ↓
+Value
+```
+
+### Delete
+
+```text
+DELETE
+  ↓
+WAL
+  ↓
+Tombstone
+  ↓
+MemTable
+  ↓
+SSTable
+  ↓
+Compaction
+```
+
+### Recovery
+
+```text
+Crash
+  ↓
+WAL
+  ↓
+Replay Operations
+  ↓
+MemTable Recovery
+```
+
+🧩 Components
+
+1. WAL
+2. MemTable
+3. PUT Operation
+4. MemTable Full Check
+5. Flush Trigger
+6. MemTable → SSTable Flush
+7. SSTable File Creation
+8. MemTable Reset
+9. GET Operation
+10. SSTable Search
+11. Bloom Filter
+12. SSTable Index
+13. Compaction
+14. Tombstone / Delete Handling
+15. DELETE Operation
+16. WAL Recovery
+
+ 🛠️ Tech Stack
+
+* Java
+* Maven
+* File I/O
+* Collections
+* Data Structures
+* Hashing
+
+📚 What This Project Demonstrates
+
+This project demonstrates practical understanding of:
+
+* Write-heavy storage design
+* In-memory data structures
+* Persistent sorted files
+* Read optimization
+* Crash recovery
+* Deletion handling
+* Compaction
+* Storage-engine design
+
+ 🚧 Project Status
+
+In Development
+
+The project is being implemented component-by-component, with each component understood, implemented, tested, and integrated into the complete LSM-Tree.
+
+Learning Objective
+
+This project is primarily built as a hands-on learning project to understand the internal design and implementation of an LSM-Tree based storage engine.
