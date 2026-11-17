@@ -1,0 +1,3 @@
+city|Chennai
+color|Blue
+fruit|Apple
